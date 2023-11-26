@@ -11,7 +11,7 @@ import pandas as pd
 
 # Load the dataset
 # Assuming you have the dataset loaded into a variable named 'data'
-data = "D:\\Projects\\CASdatasets\\data\\auscathist.xlsx"
+data = "auscathist.xlsx"
 
 data = pd.read_excel(data)
 
