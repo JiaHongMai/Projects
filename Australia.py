@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+'''
+#Dataset:
+Historical disaster statistics in Australia from 1967 to 2014.
+
+#Project Description:
+This project involves the analysis and visualization of historical data on natural disasters in Australia,
+specifically focusing on the number of catastrophes per year. A Poisson process is simulated to model the occurrence of disasters over time.
+The code is implemented in Python using libraries such as NumPy, Matplotlib, and Pandas.
+
+'''
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
