@@ -5,7 +5,7 @@ import pandas as pd
 
 # Load the dataset
 # Assuming you have the dataset loaded into a variable named 'data'
-data = r"C:\Users\Reydarz\OneDrive\Projects\CASdatasets\data\auscathist.xlsx"
+data = "auscathist.xlsx"
 
 df = pd.read_excel(data)
 
