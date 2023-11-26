@@ -1,65 +1,107 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Nov 18 15:51:46 2023
-
-@author: Reydarz
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
 # Load the dataset
 # Assuming you have the dataset loaded into a variable named 'data'
-data = "auscathist.xlsx"
+data = r"C:\Users\Reydarz\OneDrive\Projects\CASdatasets\data\auscathist.xlsx"
 
-data = pd.read_excel(data)
+df = pd.read_excel(data)
 
-# Extract the 'NormCost2014' column as the target distribution
-target_distribution = data['NormCost2014']
+#%%Histogram
 
-# Define the proposal distribution (Poisson distribution)
-def proposal_distribution(theta):
-    return np.random.poisson(theta)
+x1 = df["Year"]
 
-# Define the target distribution (using the 'NormCost2014' column)
-def target_distribution_prob(theta):
-    # Assuming a normal distribution for simplicity
-    mu = np.mean(target_distribution)
-    sigma = np.std(target_distribution)
-    return np.exp(-0.5 * ((theta - mu) / sigma)**2) / (sigma * np.sqrt(2 * np.pi))
+# Create a larger figure
+plt.figure(figsize=(18,12))
 
-# Metropolis-Hastings algorithm
-def metropolis_hastings(iterations, initial_theta):
-    samples = [initial_theta]
+hist = plt.hist(x1,bins=len(set(x1)), edgecolor='black', color="#E6A000")
+plt.ylabel('Number of catastrophe',fontsize=10)
+plt.title('Number of natural disasters per year in Australia', fontsize=20)
 
-    for _ in range(iterations):
-        # Propose a new sample from the proposal distribution
-        theta_proposed = proposal_distribution(samples[-1])
+y1, _ = np.histogram(x1,bins=len(set(x1)))
 
-        # Calculate acceptance ratio
-        alpha = min(1, target_distribution_prob(theta_proposed) / target_distribution_prob(samples[-1]))
 
-        # Accept or reject the proposed sample
-        if np.random.rand() < alpha:
-            samples.append(theta_proposed)
-        else:
-            samples.append(samples[-1])
+# Set ticks to show every increment on both x and y axes
+highest_count = int(max(hist[0]))
 
-    return np.array(samples)
+plt.xticks(range(min(x1), max(x1)),fontsize=10,rotation=35)
+plt.yticks(range(0, highest_count),fontsize=5)
 
-# Set the number of iterations and initial value
-iterations = 10000
-initial_value = np.mean(target_distribution)
+# Fit a trendline (linear regression) to the counts
+counts, bins, _ = hist
 
-# Run Metropolis-Hastings algorithm
-samples = metropolis_hastings(iterations, initial_value)
+coefficients = np.polyfit(bins[:-1], counts, 1)
+trendline = np.poly1d(coefficients)
+plt.plot(bins[:-1], trendline(bins[:-1]), color='red', linestyle='--', linewidth=2, label='Trendline')
+plt.show()
 
-# Plot the results
-plt.figure(figsize=(10, 6))
-plt.plot(samples, label='Metropolis-Hastings Samples')
-plt.axhline(np.mean(target_distribution), color='red', linestyle='--', label='True Mean')
-plt.legend()
+
+
+
+#Added Period column
+def map_to_period(year):
+    return f"{(year // 5) * 5} - {(year // 5) * 5 + 4}"
+
+df['Period'] = df['Year'].apply(map_to_period)
+
+#Estimate the mean of disasters per period
+
+dis_lambda = df.groupby('Year').size().mean()
+
+
+
+##Simulation
+def simulate_poisson_process(rate, total_time, time_increment):
+    num_increments = int(total_time / time_increment)
+    t = np.arange(2015, 2015+total_time, time_increment)
+    events = np.zeros(num_increments)
+    for i in range(num_increments):
+        num_events = np.random.poisson(rate * time_increment)
+        events[i] = num_events
+    return t, events
+
+# Parameters
+poisson_rate = dis_lambda
+simulation_time = 50  # Total time in years
+time_increment = 1  # Time increment for simulation in years
+
+# Simulate Poisson process
+x2, event_counts = simulate_poisson_process(poisson_rate, simulation_time, time_increment)
+
+# Create a larger figure
+plt.figure(figsize=(18, 12))
+
+# Plotting the results with bars
+plt.bar(x2, event_counts, edgecolor='black', color="#E6A000", width=time_increment, align='edge')
+plt.xlabel('Time (Years)', fontsize=14)
+plt.ylabel('Number of Catastrophes', fontsize=14)
+plt.title('Number of Natural Disasters over Time', fontsize=20)
+plt.grid(axis='y')  # Add grid lines on the y-axis for better readability
+plt.show()
+
+
+
+## Combine the two graphs
+
+#Define Variables
+x1 = x1.unique()[::-1]
+X = np.concatenate((x1, x2))
+
+y2 = event_counts
+Y = np.concatenate((y1, y2))
+
+# Create a larger figure
+plt.figure(figsize=(18, 12))
+
+# Plotting the results with bars
+plt.bar(X, Y, edgecolor='black', color="#E6A000", width=time_increment, align='edge')
+plt.xlabel('Time (Years)', fontsize=14)
+plt.ylabel('Number of Catastrophes', fontsize=14)
+plt.title('Number of Natural Disasters over Time', fontsize=20)
+plt.grid(axis='y')  # Add grid lines on the y-axis for better readability
+plt.show()
 plt.title('Metropolis-Hastings Simulation of Insurance Losses with Poisson Proposal Distribution')
 plt.xlabel('Iterations')
 plt.ylabel('Sampled Values')
