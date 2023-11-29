@@ -70,6 +70,26 @@ dis_lambda = df.groupby('Year').size().mean()
 
 ##Simulation using poisson process
 def simulate_poisson_process(rate, total_time, time_increment):
+    '''
+    Simulates a Poisson process to model the occurrence of events over time.
+
+    Parameters:
+    - rate (float): The average rate of events per unit time.
+    - total_time (float): The total duration of the simulation.
+    - time_increment (float): The time increment for each step in the simulation.
+
+    Returns:
+    tuple: A tuple containing two NumPy arrays:
+        - t (ndarray): An array of time points spanning the simulation duration.
+        - events (ndarray): An array representing the number of events at each time point,
+          generated based on the Poisson process.
+
+    Note:
+    The Poisson process is a stochastic model that describes the number of events
+    occurring in fixed intervals of time or space. The `rate` parameter represents
+    the average rate of events per unit time, and the simulation is performed
+    using the provided time increment over the specified total time.
+    '''
     num_increments = int(total_time / time_increment)
     t = np.arange(2015, 2015+total_time, time_increment)
     events = np.zeros(num_increments)
