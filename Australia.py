@@ -9,23 +9,24 @@ specifically focusing on the number of catastrophes per year. A Poisson process 
 The code is implemented in Python using libraries such as NumPy, Matplotlib, and Pandas.
 
 '''
+#Load libaries
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
 # Load the dataset
-# Assuming you have the dataset loaded into a variable named 'data'
 data = "auscathist.xlsx"
-
 df = pd.read_excel(data)
 
-#%%Histogram
+##Histogram of natural disasters in Australia
 
+#Define Variables
 x1 = df["Year"]
 
-# Create a larger figure
+#Create figure
 plt.figure(figsize=(18,12))
 
+#Histogram
 hist = plt.hist(x1,bins=len(set(x1)), edgecolor='black', color="#E6A000")
 plt.ylabel('Number of catastrophe',fontsize=10)
 plt.title('Number of natural disasters per year in Australia', fontsize=20)
@@ -57,12 +58,11 @@ def map_to_period(year):
 df['Period'] = df['Year'].apply(map_to_period)
 
 #Estimate the mean of disasters per period
-
 dis_lambda = df.groupby('Year').size().mean()
 
 
 
-##Simulation
+##Simulation using poisson process
 def simulate_poisson_process(rate, total_time, time_increment):
     num_increments = int(total_time / time_increment)
     t = np.arange(2015, 2015+total_time, time_increment)
@@ -80,7 +80,7 @@ time_increment = 1  # Time increment for simulation in years
 # Simulate Poisson process
 x2, event_counts = simulate_poisson_process(poisson_rate, simulation_time, time_increment)
 
-# Create a larger figure
+# Create figure
 plt.figure(figsize=(18, 12))
 
 # Plotting the results with bars
@@ -93,7 +93,7 @@ plt.show()
 
 
 
-## Combine the two graphs
+## Combine histogram and simulation graph
 
 #Define Variables
 x1 = x1.unique()[::-1]
