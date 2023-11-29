@@ -53,6 +53,12 @@ plt.show()
 
 #Added Period column
 def map_to_period(year):
+    ''' (int) -> (str)
+    Maps a given year to a period, of 5-year duration, by rounding down to the nearest multiple of 5.
+
+    >>>map_to_period(2013)
+    >>>2010 - 2014
+    '''
     return f"{(year // 5) * 5} - {(year // 5) * 5 + 4}"
 
 df['Period'] = df['Year'].apply(map_to_period)
