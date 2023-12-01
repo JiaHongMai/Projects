@@ -18,15 +18,13 @@ import pandas as pd
 data = "auscathist.xlsx"
 df = pd.read_excel(data)
 
-##Histogram of natural disasters in Australia
+#%%Histogram
 
-#Define Variables
 x1 = df["Year"]
 
-#Create figure
+# Create a larger figure
 plt.figure(figsize=(18,12))
 
-#Histogram
 hist = plt.hist(x1,bins=len(set(x1)), edgecolor='black', color="#E6A000")
 plt.ylabel('Number of catastrophe',fontsize=10)
 plt.title('Number of natural disasters per year in Australia', fontsize=20)
@@ -40,86 +38,75 @@ highest_count = int(max(hist[0]))
 plt.xticks(range(min(x1), max(x1)),fontsize=10,rotation=35)
 plt.yticks(range(0, highest_count),fontsize=5)
 
-# Fit a trendline (linear regression) to the counts
+#Linear Regression
 counts, bins, _ = hist
 
-coefficients = np.polyfit(bins[:-1], counts, 1)
-trendline = np.poly1d(coefficients)
-plt.plot(bins[:-1], trendline(bins[:-1]), color='red', linestyle='--', linewidth=2, label='Trendline')
-plt.show()
+from sklearn.linear_model import LinearRegression
+
+X = bins[:-1].reshape(-1, 1)
+y = counts.reshape(-1, 1)
+model = LinearRegression().fit(X,y)
+
+intercept, slope = model.intercept_, model.coef_
 
 
-
-
-#Added Period column
-def map_to_period(year):
-    ''' (int) -> (str)
-    Maps a given year to a period, of 5-year duration, by rounding down to the nearest multiple of 5.
-
-    >>>map_to_period(2013)
-    >>>2010 - 2014
-    '''
-    return f"{(year // 5) * 5} - {(year // 5) * 5 + 4}"
-
-df['Period'] = df['Year'].apply(map_to_period)
-
-#Estimate the mean of disasters per period
-dis_lambda = df.groupby('Year').size().mean()
-
-
-
-##Simulation using poisson process
-def simulate_poisson_process(rate, total_time, time_increment):
-    '''
-    Simulates a Poisson process to model the occurrence of events over time.
+# Define the intensity function
+def intensity_function(t):
+    """
+    Defines the intensity function for an inhomogeneous Poisson process.
 
     Parameters:
-    - rate (float): The average rate of events per unit time.
-    - total_time (float): The total duration of the simulation.
-    - time_increment (float): The time increment for each step in the simulation.
+    - t (float): Time parameter.
 
     Returns:
-    tuple: A tuple containing two NumPy arrays:
-        - t (ndarray): An array of time points spanning the simulation duration.
-        - events (ndarray): An array representing the number of events at each time point,
-          generated based on the Poisson process.
+    - float: The intensity of the process at the given time.
+    """
+    return slope * t + intercept
 
+
+##Simulation
+def simulate_inhomogeneous_poisson_process(total_time, time_increment):
+    """
+    Simulates an inhomogeneous Poisson process over a specified time period.
+    
+    Parameters:
+    - total_time (float): Total time duration of the simulation in years.
+    - time_increment (float): Time increment for the simulation in years.
+    
+    Returns:
+    - t (numpy.ndarray): Array of time points.
+    - events (numpy.ndarray): Array representing the number of events at each time point.
+    
     Note:
     The Poisson process is a stochastic model that describes the number of events
     occurring in fixed intervals of time or space. The `rate` parameter represents
     the average rate of events per unit time, and the simulation is performed
     using the provided time increment over the specified total time.
-    '''
-    num_increments = int(total_time / time_increment)
-    t = np.arange(2015, 2015+total_time, time_increment)
+    """
+    t = np.arange(2015, 2015 + total_time, time_increment)
+    num_increments = len(t)
     events = np.zeros(num_increments)
-    for i in range(num_increments):
-        num_events = np.random.poisson(rate * time_increment)
+
+    for i in range(1, num_increments):
+        intensity = intensity_function(t[i - 1])
+        num_events = np.random.poisson(intensity * time_increment)
         events[i] = num_events
+
     return t, events
 
 # Parameters
-poisson_rate = dis_lambda
 simulation_time = 50  # Total time in years
 time_increment = 1  # Time increment for simulation in years
 
 # Simulate Poisson process
-x2, event_counts = simulate_poisson_process(poisson_rate, simulation_time, time_increment)
+x2, event_counts = simulate_inhomogeneous_poisson_process(simulation_time, time_increment)
 
-# Create figure
-plt.figure(figsize=(18, 12))
-
-# Plotting the results with bars
-plt.bar(x2, event_counts, edgecolor='black', color="#E6A000", width=time_increment, align='edge')
-plt.xlabel('Time (Years)', fontsize=14)
-plt.ylabel('Number of Catastrophes', fontsize=14)
-plt.title('Number of Natural Disasters over Time', fontsize=20)
-plt.grid(axis='y')  # Add grid lines on the y-axis for better readability
-plt.show()
+# Adjust the first element based on the intensity at the initial time
+initial_intensity = intensity_function(x2[0])
+event_counts[0] = np.random.poisson(initial_intensity * time_increment)
 
 
-
-## Combine histogram and simulation graph
+## Combine the two graphs
 
 #Define Variables
 x1 = x1.unique()[::-1]
@@ -135,10 +122,6 @@ plt.figure(figsize=(18, 12))
 plt.bar(X, Y, edgecolor='black', color="#E6A000", width=time_increment, align='edge')
 plt.xlabel('Time (Years)', fontsize=14)
 plt.ylabel('Number of Catastrophes', fontsize=14)
-plt.title('Number of Natural Disasters over Time', fontsize=20)
+plt.title('Simulation of the Number of Natural Disasters in Australia after 2014, Combined with Original Dataset', fontsize=20)
 plt.grid(axis='y')  # Add grid lines on the y-axis for better readability
-plt.show()
-plt.title('Metropolis-Hastings Simulation of Insurance Losses with Poisson Proposal Distribution')
-plt.xlabel('Iterations')
-plt.ylabel('Sampled Values')
 plt.show()
