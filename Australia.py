@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 '''
 #Dataset:
 Historical disaster statistics in Australia from 1967 to 2014.
@@ -18,34 +19,32 @@ import pandas as pd
 data = "auscathist.xlsx"
 df = pd.read_excel(data)
 
-#%%Histogram
+#%% Histogram
 
+# Original dataset
 x1 = df["Year"]
 
 # Create a larger figure
-plt.figure(figsize=(18,12))
+plt.figure(figsize=(18, 12))
 
-hist = plt.hist(x1,bins=len(set(x1)), edgecolor='black', color="#E6A000")
-plt.ylabel('Number of catastrophe',fontsize=10)
-plt.title('Number of natural disasters per year in Australia', fontsize=20)
-
-y1, _ = np.histogram(x1,bins=len(set(x1)))
-
+# Plot histogram for the original dataset
+hist = plt.hist(x1, bins=len(set(x1)), edgecolor='black', color="#E6A000")
+plt.ylabel('Number of Catastrophes', fontsize=10)
+plt.title('Number of Natural Disasters per Year in Australia', fontsize=20)
 
 # Set ticks to show every increment on both x and y axes
 highest_count = int(max(hist[0]))
+plt.xticks(range(min(x1), max(x1)), fontsize=10, rotation=35)
+plt.yticks(range(0, highest_count), fontsize=5)
 
-plt.xticks(range(min(x1), max(x1)),fontsize=10,rotation=35)
-plt.yticks(range(0, highest_count),fontsize=5)
-
-#Linear Regression
+# Linear Regression
 counts, bins, _ = hist
 
 from sklearn.linear_model import LinearRegression
 
 X = bins[:-1].reshape(-1, 1)
 y = counts.reshape(-1, 1)
-model = LinearRegression().fit(X,y)
+model = LinearRegression().fit(X, y)
 
 intercept, slope = model.intercept_, model.coef_
 
@@ -64,19 +63,20 @@ def intensity_function(t):
     return slope * t + intercept
 
 
-##Simulation
+## Simulation
+
 def simulate_inhomogeneous_poisson_process(total_time, time_increment):
     """
     Simulates an inhomogeneous Poisson process over a specified time period.
-    
+
     Parameters:
     - total_time (float): Total time duration of the simulation in years.
     - time_increment (float): Time increment for the simulation in years.
-    
+
     Returns:
     - t (numpy.ndarray): Array of time points.
     - events (numpy.ndarray): Array representing the number of events at each time point.
-    
+
     Note:
     The Poisson process is a stochastic model that describes the number of events
     occurring in fixed intervals of time or space. The `rate` parameter represents
@@ -94,7 +94,7 @@ def simulate_inhomogeneous_poisson_process(total_time, time_increment):
 
     return t, events
 
-# Parameters
+# Parameters for simulation
 simulation_time = 50  # Total time in years
 time_increment = 1  # Time increment for simulation in years
 
@@ -108,10 +108,11 @@ event_counts[0] = np.random.poisson(initial_intensity * time_increment)
 
 ## Combine the two graphs
 
-#Define Variables
+# Define Variables
 x1 = x1.unique()[::-1]
 X = np.concatenate((x1, x2))
 
+y1 = counts
 y2 = event_counts
 Y = np.concatenate((y1, y2))
 
