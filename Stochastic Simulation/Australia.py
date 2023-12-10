@@ -120,9 +120,12 @@ Y = np.concatenate((y1, y2))
 plt.figure(figsize=(18, 12))
 
 # Plotting the results with bars
-plt.bar(X, Y, edgecolor='black', color="#E6A000", width=time_increment, align='edge')
+plt.bar(X[X > 2014], Y[X > 2014], edgecolor='black', color="#007AF5", width=time_increment, align='edge', label='Simulated Data (After 2014)')
+plt.bar(X[X <= 2014], Y[X <= 2014], edgecolor='black', color="#F59900", width=time_increment, align='edge', label='Original Data (Before 2014)')
 plt.xlabel('Time (Years)', fontsize=14)
 plt.ylabel('Number of Catastrophes', fontsize=14)
 plt.title('Simulation of the Number of Natural Disasters in Australia after 2014, Combined with Original Dataset', fontsize=20)
 plt.grid(axis='y')  # Add grid lines on the y-axis for better readability
+plt.legend(fontsize='large')
 plt.show()
+
