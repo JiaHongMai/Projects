@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Dec  1 13:33:37 2023
-
-@author: Reydarz
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Nov 25 16:00:24 2022
-
-@author: mjiah
-"""
 
 # Load libraries
 import pandas as pd
