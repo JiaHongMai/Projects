@@ -2,8 +2,8 @@
 
 Project 1: Kickstarter
 
-Built a predictive model to guess which kickstarter campaign is likely to succeeed and reach their target goal.\n 
-Build a clustering model to group the campaigns to gain insights into their geographical location, industries, etc.
+Built a predictive model to guess which kickstarter campaign is likely to succeeed and reach their target goal.
+Built a clustering model to group the campaigns to gain insights into their geographical location, industries, etc.
 
 
 
